@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import emailjs from "emailjs-com";
 
 interface EstablishmentInputProps {
   onInputChange: (data: {
@@ -39,6 +40,7 @@ export default function EstablishmentInput({
   const [contactNumber, setContactNumber] = useState<string>("")
   const [acUnits, setAcUnits] = useState<string>("")
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (initialBusinessName) {
@@ -75,8 +77,9 @@ export default function EstablishmentInput({
     })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setLoading(true)
     const allFieldsFilled =
       !!businessName &&
       !!contactName &&
@@ -91,8 +94,33 @@ export default function EstablishmentInput({
       onCalculate(false)
       return
     }
+
+    try {
+      let formData = {
+        businessName,
+        contactName,
+        contactNumber,
+        businessType,
+        acUnits,
+        totalCapacity,
+        efficiencyRating
+      }
+      const response = await emailjs.send(
+        process.env.EmailJS_Service_ID as string, // Your EmailJS Service ID
+        process.env.EMAILJS_CALCULATE_TEMPLATE_ID as string, // Your EmailJS Template ID
+        formData,
+        process.env.EmailJS_Public_Key as string // Your EmailJS Public Key
+      );
+
+      console.log("Email sent successfully:", response);
+      alert("Email sent successfully!");
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("Failed to send email. Please try again.");
+    }
     setError(null)
     onCalculate(true)
+    setLoading(false)
   }
 
   return (
@@ -186,8 +214,11 @@ export default function EstablishmentInput({
         </form>
       </CardContent>
       <CardFooter>
-        <Button type="submit" onClick={handleSubmit} className="w-full">
+        <Button type="submit" disabled={loading} onClick={handleSubmit} className="w-full">
           View Your Savings Now
+          {loading && (<span>
+            <Loader2 className="w-4 h-4 animate-spin" />
+          </span>)}
         </Button>
       </CardFooter>
     </Card>
