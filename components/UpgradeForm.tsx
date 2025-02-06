@@ -13,6 +13,7 @@ export function UpgradeForm() {
     businessName: "",
     contactName: "",
     contactNumber: "",
+    contactEmail: "",
     businessType: "",
     acUnits: "",
     monthlyEnergyBill: "",
@@ -78,6 +79,10 @@ export function UpgradeForm() {
       <div>
         <Label htmlFor="contactName">Contact Name</Label>
         <Input id="contactName" name="contactName" value={formData.contactName} onChange={handleInputChange} required />
+      </div>
+      <div>
+        <Label htmlFor="contactEmail">Contact Email</Label>
+        <Input id="contactEmail" name="contactEmail" value={formData.contactEmail} onChange={handleInputChange} required />
       </div>
       <div>
         <Label htmlFor="contactNumber">Contact Number</Label>

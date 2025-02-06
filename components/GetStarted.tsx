@@ -11,6 +11,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { StartSavingForm } from "./StartSavingForm"
+import { UpgradeForm } from "./UpgradeForm"
 
 export default function GetStarted() {
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -40,7 +41,7 @@ export default function GetStarted() {
                       current usage and provide tailored recommendations.
                     </DialogDescription>
                   </DialogHeader>
-                  <StartSavingForm />
+                  <UpgradeForm />
                 </DialogContent>
               </Dialog>
             </div>

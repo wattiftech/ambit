@@ -32,10 +32,7 @@ export default function EstablishmentInput({
   const [efficiencyRating, setEfficiencyRating] = useState<2 | 3 | "">("")
   const [businessType, setBusinessType] = useState<"F&B" | "Retail" | "">("")
   const [totalCapacity, setTotalCapacity] = useState<string>("")
-  const [numberOfUnits, setNumberOfUnits] = useState<string>("")
   const [businessName, setBusinessName] = useState<string>(initialBusinessName || "")
-  const [userName, setUserName] = useState<string>("")
-  const [phoneNumber, setPhoneNumber] = useState<string>("")
   const [contactName, setContactName] = useState<string>("")
   const [contactNumber, setContactNumber] = useState<string>("")
   const [acUnits, setAcUnits] = useState<string>("")
@@ -77,51 +74,174 @@ export default function EstablishmentInput({
     })
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
-    const allFieldsFilled =
-      !!businessName &&
-      !!contactName &&
-      !!contactNumber &&
-      !!totalCapacity &&
-      !!acUnits &&
-      !!businessType &&
-      !!efficiencyRating
 
-    if (!allFieldsFilled) {
-      setError("Please fill in all fields")
-      onCalculate(false)
-      return
+  // Helper functions
+  function getAirconCost(totalCapacity: number): number {
+    const costs = {
+      1.5: 5000,
+      2.0: 5500,
+      2.5: 6000,
+      3.0: 7000,
+      4.0: 8000,
+      5.0: 10000,
+    };
+    const capacities = Object.keys(costs).map(Number);
+    const closestCapacity = capacities.reduce((prev, curr) =>
+      Math.abs(curr - totalCapacity) < Math.abs(prev - totalCapacity) ? curr : prev
+    );
+    return costs[closestCapacity as keyof typeof costs];
+  }
+
+  function calculateGrant(cost: number): number {
+    return Math.min(cost * 0.7, 30000);
+  }
+
+  function calculateAnnualEnergyCost(
+    totalCapacity: number,
+    efficiencyRating: 2 | 3 | 5,
+    businessType: "F&B" | "Retail"
+  ): number {
+    const cop = {
+      2: 2.9,
+      3: 3.34,
+      5: 4.29,
+    }[efficiencyRating];
+    const weeks = 52;
+    const loadFactor = businessType === "F&B" ? 0.8 : 0.7;
+    const electricityRate = 0.25;
+    const averageHoursPerWeek = 91;
+
+    return (totalCapacity * 3.516 * averageHoursPerWeek * weeks * loadFactor * electricityRate) / cop;
+  }
+  function calculateFormValues(
+    totalCapacity: number,
+    efficiencyRating: 2 | 3,
+    businessType: "F&B" | "Retail",
+    acUnits: number
+  ) {
+    // Calculate system cost and grant
+    const systemCost = getAirconCost(totalCapacity / acUnits) * acUnits;
+    const grantCoverage = calculateGrant(systemCost);
+
+    // Calculate current (old) system costs
+    const currentAnnualEnergyCost = calculateAnnualEnergyCost(totalCapacity, efficiencyRating, businessType);
+    const currentAnnualMaintenanceCost = acUnits * 800; // $800 per unit for 2-tick and 3-tick
+
+    // Calculate new system energy costs
+    const newSystemAnnualEnergyCost = calculateAnnualEnergyCost(totalCapacity, 5, businessType);
+
+    // Calculate energy savings percentage
+    const energySavingsPercentage =
+      ((currentAnnualEnergyCost - newSystemAnnualEnergyCost) / currentAnnualEnergyCost) * 100;
+
+    // Calculate annual savings
+    const oldSystemAnnualCost = currentAnnualEnergyCost + currentAnnualMaintenanceCost;
+    const newSystemAnnualCost = newSystemAnnualEnergyCost + (acUnits * 600); // $600 per unit for 5-tick
+
+    const savingsYear1 = oldSystemAnnualCost - (newSystemAnnualCost + (systemCost - grantCoverage));
+    const savingsYear2 = oldSystemAnnualCost - newSystemAnnualCost;
+    const savingsYear3 = savingsYear2; // Same as year 2
+
+    return {
+      currentAnnualEnergyCost: currentAnnualEnergyCost.toFixed(2),
+      currentAnnualMaintenanceCost: currentAnnualMaintenanceCost.toFixed(2),
+      energySavingsPercentage: energySavingsPercentage.toFixed(2),
+      systemCost: systemCost.toFixed(2),
+      grantCoverage: grantCoverage.toFixed(2),
+      savingsYear1: savingsYear1.toFixed(2),
+      savingsYear2: savingsYear2.toFixed(2),
+      savingsYear3: savingsYear3.toFixed(2)
+    };
+  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    // Validate all required fields
+    let errors: string[] = [];
+
+    if (!businessName) errors.push("Business name is required.");
+    if (!contactName) errors.push("Contact name is required.");
+    if (!contactNumber) errors.push("Contact number is required.");
+    if (!totalCapacity) errors.push("Total capacity is required.");
+    if (!acUnits) errors.push("Number of AC units is required.");
+    if (!businessType) errors.push("Business type is required.");
+    // if (!efficiencyRating) errors.push("Efficiency rating is required.");
+
+    if (errors.length > 0) {
+      setError(errors.join("\n"));
+      onCalculate(false);
+      setLoading(false);
+      return;
     }
 
+    setError(null);
+
     try {
-      let formData = {
+
+
+      // Calculate all the values using the calculation function
+      const calculatedValues = calculateFormValues(
+        Number(totalCapacity),
+        efficiencyRating as 2 | 3,
+        businessType as "F&B" | "Retail",
+        Number(acUnits)
+      );
+
+      // Combine form data with calculated values
+      const formData = {
+        // Form input fields
         businessName,
-        contactName,
-        contactNumber,
+        userName: contactName,
+        phoneNumber: contactNumber,
         businessType,
-        acUnits,
+
+        efficiencyRating,
         totalCapacity,
-        efficiencyRating
-      }
+        numberOfUnits: acUnits,
+
+        // Calculated values
+        currentAnnualEnergyCost: calculatedValues.currentAnnualEnergyCost,
+        currentAnnualMaintenanceCost: calculatedValues.currentAnnualMaintenanceCost,
+        energySavingsPercentage: calculatedValues.energySavingsPercentage,
+        systemCost: calculatedValues.systemCost,
+        grantCoverage: calculatedValues.grantCoverage,
+
+        savingsYear1: calculatedValues.savingsYear1,
+        savingsYear2: calculatedValues.savingsYear2,
+        savingsYear3: calculatedValues.savingsYear3,
+      };
+
+
+      console.log(formData)
+
+      // Send email using EmailJS
+      let template_id = process.env.EMAILJS_CALCULATE_TEMPLATE_ID || ""
       const response = await emailjs.send(
-        process.env.EmailJS_Service_ID as string, // Your EmailJS Service ID
-        process.env.EMAILJS_CALCULATE_TEMPLATE_ID as string, // Your EmailJS Template ID
+        process.env.EmailJS_Service_ID as string,
+        template_id,
         formData,
-        process.env.EmailJS_Public_Key as string // Your EmailJS Public Key
+        process.env.EmailJS_Public_Key as string
       );
 
       console.log("Email sent successfully:", response);
       alert("Email sent successfully!");
+
+      // Reset error state and trigger success callback
+      setError(null);
+      onCalculate(true);
     } catch (error) {
       console.error("Error sending email:", error);
       alert("Failed to send email. Please try again.");
+      setError("Failed to send email. Please try again.");
+      onCalculate(false);
+    } finally {
+      setLoading(false);
     }
-    setError(null)
-    onCalculate(true)
-    setLoading(false)
-  }
+  };
+
+  // TypeScript interface for the form data
+
 
   return (
     <Card className="w-full">
