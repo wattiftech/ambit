@@ -46,10 +46,10 @@ export function UpgradeForm() {
 
     try {
       const response = await emailjs.send(
-        process.env.EmailJS_Service_ID as string, // Your EmailJS Service ID
-        process.env.EmailJS_Template_ID as string, // Your EmailJS Template ID
+        process.env.EMAILJS_SERVICE_ID as string, // Your EmailJS Service ID
+        process.env.EMAILJS_TEMPLATE_ID as string, // Your EmailJS Template ID
         formData,
-        process.env.EmailJS_Public_Key as string // Your EmailJS Public Key
+        process.env.EMAILJS_PUBLIC_KEY as string // Your EmailJS Public Key
       );
 
       console.log("Email sent successfully:", response);

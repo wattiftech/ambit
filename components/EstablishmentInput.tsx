@@ -218,10 +218,10 @@ export default function EstablishmentInput({
       // Send email using EmailJS
       let template_id = process.env.EMAILJS_CALCULATE_TEMPLATE_ID || ""
       const response = await emailjs.send(
-        process.env.EmailJS_Service_ID as string,
+        process.env.EMAILJS_SERVICE_ID as string,
         template_id,
         formData,
-        process.env.EmailJS_Public_Key as string
+        process.env.EMAILJS_PUBLIC_KEY as string
       );
 
       console.log("Email sent successfully:", response);
