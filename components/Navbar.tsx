@@ -24,7 +24,7 @@ const logos = {
 
 const navItems = [
   { name: "Solution", href: "#solution" },
-  { name: "Benefits", href: "#about-bliss" },
+  { name: "Benefits", href: "#about-ambit" },
   { name: "Pricing", href: "#pricing" },
   { name: "How it Works", href: "#how-it-works" },
 ]
