@@ -7,19 +7,19 @@ const kitItems = [
     title: "Smart Controller",
     description: "Connects to your existing AC system for intelligent control",
     icon: Cpu,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/images/Controller.png",
   },
   {
     title: "Wireless Sensor",
     description: "Monitors temperature and humidity in real-time",
     icon: Wifi,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/images/Energy-Meter.svg",
   },
   {
     title: "Energy Meter",
     description: "Tracks power consumption for optimized savings",
     icon: BarChart3,
-    image: "/placeholder.svg?height=200&width=200",
+    image: "/images/Sensor.png",
   },
 ]
 
