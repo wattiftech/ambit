@@ -65,7 +65,7 @@ export default function EnergyEfficiencySection() {
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
               <div className="relative aspect-[21/9]">
                 <Image
-                  src="/placeholder.svg?height=720&width=1680"
+                  src="/images/Ambit_Main_Image.svg"
                   alt="Energy savings dashboard"
                   layout="fill"
                   objectFit="cover"

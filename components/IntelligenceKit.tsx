@@ -10,16 +10,17 @@ const kitItems = [
     image: "/images/Controller.png",
   },
   {
-    title: "Wireless Sensor",
-    description: "Monitors temperature and humidity in real-time",
+    title: "Occupancy Sensor",
+    description: "Privacy-friendly sensors that detect human movement and accurately track customer count and traffic patterns.",
+    image: "/images/Ambit_Sensor.jpeg",
     icon: Wifi,
-    image: "/images/Energy-Meter.svg",
   },
   {
     title: "Energy Meter",
     description: "Tracks power consumption for optimized savings",
     icon: BarChart3,
-    image: "/images/Sensor.png",
+    image: "/images/Energy-Meter.svg",
+
   },
 ]
 
